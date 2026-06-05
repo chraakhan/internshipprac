@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1025649649569",
+    "project_id": "internshipflutter1",
+    "storage_bucket": "internshipflutter1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025649649569:android:b7d78cdb530624eae40de0",
+        "android_client_info": {
+          "package_name": "com.example.internshipflutter1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCem_p_V6xa1CB2AZJXTX5NqTIyKnEvDRE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
