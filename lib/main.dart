@@ -17,9 +17,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       home: Scaffold(
-        body: Center(child: Text("🔥 Firebase Connected Successfully")),
+        body: Center(
+          child: Text("🔥 Firebase Connected Successfullyyyyyyyyyyyyyyy"),
+        ),
       ),
     );
   }
 }
+
 //helloooooooooo wolrld 22222
