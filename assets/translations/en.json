@@ -1,4 +1,7 @@
 {
-    "submit": "submit en"
-    
+    "submit": "submit en",
+    "title": "Firebase Form",
+    "firstname": "First Name",
+    "age": "Age",
+    "mesg": "Data sent to Firebase"
 }

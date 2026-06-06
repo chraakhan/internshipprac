@@ -1,4 +1,8 @@
 {
-        "submit": "ناردن"
+        "submit": "ناردن",
+        "title": "نموذج Firebase",
+        "firstname": "الاسم الأول",
+        "age": "العمر",
+        "mesg": "تم إرسال البيانات إلى Firebase"
 
 }

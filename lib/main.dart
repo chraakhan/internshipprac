@@ -58,26 +58,26 @@ class _HomePageState extends State<HomePage> {
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text("Data sent to Firebase 🔥")));
+    ).showSnackBar(SnackBar(content: Text("mesg ".tr())));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Firebase Form")),
+      appBar: AppBar(title: Text("title".tr())),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: "Enter your name"),
+              decoration: InputDecoration(labelText: "age".tr()),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: ageController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Enter your age"),
+              decoration: InputDecoration(labelText: "firstname".tr()),
             ),
             const SizedBox(height: 20),
             ElevatedButton(onPressed: sendData, child: Text("submit").tr()),
