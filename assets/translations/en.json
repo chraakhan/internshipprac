@@ -3,5 +3,8 @@
     "title": "Firebase Form",
     "firstname": "First Name",
     "age": "Age",
-    "mesg": "Data sent to Firebase"
+   "mesg": {
+  "one":   "{} record submitted",
+  "other": "{} records submitted"
+}
 }

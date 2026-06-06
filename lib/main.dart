@@ -45,6 +45,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final nameController = TextEditingController();
   final ageController = TextEditingController();
+  int _submitCount = 0;
+  int _studentCount = 0;
 
   Future<void> sendData() async {
     await FirebaseFirestore.instance.collection('students').add({
@@ -55,10 +57,14 @@ class _HomePageState extends State<HomePage> {
 
     nameController.clear();
     ageController.clear();
+    setState(() {
+      _submitCount++;
+      _studentCount++;
+    });
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text("mesg ".tr())));
+    ).showSnackBar(SnackBar(content: Text("mesg".plural(_submitCount))));
   }
 
   @override
@@ -71,14 +77,20 @@ class _HomePageState extends State<HomePage> {
           children: [
             TextField(
               controller: nameController,
-              decoration: InputDecoration(labelText: "age".tr()),
+              decoration: InputDecoration(labelText: "firstname".tr()),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: ageController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: "firstname".tr()),
+              decoration: InputDecoration(labelText: "age".tr()),
             ),
+            Text(
+              "students".plural(
+                1000645,
+                format: NumberFormat.compact(locale: 'ar'),
+              ),
+            ), //added thisss
             const SizedBox(height: 20),
             ElevatedButton(onPressed: sendData, child: Text("submit").tr()),
           ],
