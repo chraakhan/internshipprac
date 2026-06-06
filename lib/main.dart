@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,9 +22,14 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -103,11 +109,22 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 20),
             // NEW: language switcher button
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                final SharedPreferences prefs =
+                    await SharedPreferences.getInstance();
+
                 if (context.locale == Locale('ar')) {
                   context.setLocale(Locale('en'));
+                  prefs.setString(
+                    'lang',
+                    'en',
+                  ); // save the current language to shared preferences
                 } else {
                   context.setLocale(Locale('ar'));
+                  prefs.setString(
+                    'lang',
+                    'ar',
+                  ); // save the current language to shared preferences
                 }
               },
               child: Text(
@@ -117,6 +134,18 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 10),
             ElevatedButton(onPressed: sendData, child: Text("submit").tr()),
+            ElevatedButton(
+              onPressed: () async {
+                // read the current language from shared preferences and show as snackbar
+                final SharedPreferences prefs =
+                    await SharedPreferences.getInstance();
+                final String? lang = prefs.getString('lang');
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('$lang'.tr())));
+              },
+              child: Text("readlang").tr(),
+            ),
           ],
         ),
       ),
