@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,12 +6,18 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  runApp(
+    EasyLocalization(
+      child: const MyApp(),
+      supportedLocales: const [Locale('en'), Locale('ar')],
+      path: 'assets/translations',
+      startLocale: const Locale('ar'),
+    ),
   );
-
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -18,7 +25,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: Locale('ar'),
       debugShowCheckedModeBanner: false,
       home: HomePage(),
     );
@@ -46,9 +56,9 @@ class _HomePageState extends State<HomePage> {
     nameController.clear();
     ageController.clear();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Data sent to Firebase 🔥")),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Data sent to Firebase 🔥")));
   }
 
   @override
@@ -61,23 +71,16 @@ class _HomePageState extends State<HomePage> {
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(
-                labelText: "Enter your name",
-              ),
+              decoration: const InputDecoration(labelText: "Enter your name"),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: ageController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: "Enter your age",
-              ),
+              decoration: const InputDecoration(labelText: "Enter your age"),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: sendData,
-              child: const Text("Send to Firebase"),
-            ),
+            ElevatedButton(onPressed: sendData, child: Text("submit").tr()),
           ],
         ),
       ),
