@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
+import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +16,7 @@ void main() async {
       child: const MyApp(),
       supportedLocales: const [Locale('en'), Locale('ar')],
       path: 'assets/translations',
-      startLocale: const Locale('ar'),
+      startLocale: const Locale('ar'), // app opens in Arabic
     ),
   );
 }
@@ -26,9 +27,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      // CHANGED: added these 3 lines back — without them app crashes
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
-      locale: Locale('ar'),
+      locale: context
+          .locale, // CHANGED: was Locale('ar') — now uses easy_localization to control it so the button can switch it
       debugShowCheckedModeBanner: false,
       home: HomePage(),
     );
@@ -62,9 +65,14 @@ class _HomePageState extends State<HomePage> {
       _studentCount++;
     });
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("mesg".plural(_submitCount))));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          // CHANGED: added format so big numbers show with commas
+          "mesg".plural(_submitCount, format: NumberFormat.decimalPattern()),
+        ),
+      ),
+    );
   }
 
   @override
@@ -85,13 +93,29 @@ class _HomePageState extends State<HomePage> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: "age".tr()),
             ),
+            // CHANGED: added format so big numbers show with commas
             Text(
               "students".plural(
-                1000645,
-                format: NumberFormat.compact(locale: 'ar'),
+                _studentCount,
+                format: NumberFormat.decimalPattern(),
               ),
-            ), //added thisss
+            ),
             const SizedBox(height: 20),
+            // NEW: language switcher button
+            ElevatedButton(
+              onPressed: () {
+                if (context.locale == Locale('ar')) {
+                  context.setLocale(Locale('en'));
+                } else {
+                  context.setLocale(Locale('ar'));
+                }
+              },
+              child: Text(
+                // shows 'English' when Arabic, shows 'عربي' when English
+                context.locale == Locale('ar') ? 'English' : 'عربي',
+              ),
+            ),
+            const SizedBox(height: 10),
             ElevatedButton(onPressed: sendData, child: Text("submit").tr()),
           ],
         ),

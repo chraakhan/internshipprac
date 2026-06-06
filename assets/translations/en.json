@@ -6,5 +6,9 @@
    "mesg": {
   "one":   "{} record submitted",
   "other": "{} records submitted"
-}
+},
+"students": {
+    "one":   "{} student in the list",
+    "other": "{} students in the list"
+  }
 }
