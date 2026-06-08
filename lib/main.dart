@@ -92,6 +92,9 @@ class _HomePageState extends State<HomePage> {
   final ageController = TextEditingController();
   int _submitCount = 0;
   int _studentCount = 0;
+  bool _hasSubmitted = false; // false = not submitted yet
+  String _submittedName = '';
+  String _submittedAge = '';
   // REMOVED: _isDarkMode, _loadTheme, _saveTheme — they moved to MyApp
 
   Future<void> sendData() async {
@@ -101,12 +104,15 @@ class _HomePageState extends State<HomePage> {
       'time': DateTime.now().toString(),
     });
 
-    nameController.clear();
-    ageController.clear();
     setState(() {
+      _submittedName = nameController.text; // save name before clearing
+      _submittedAge = ageController.text; // save age before clearing
       _submitCount++;
       _studentCount++;
+      _hasSubmitted = true;
     });
+    nameController.clear();
+    ageController.clear();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -141,28 +147,42 @@ class _HomePageState extends State<HomePage> {
                 format: NumberFormat.decimalPattern(),
               ),
             ),
+            if (_hasSubmitted)
+              Text('welcome'.tr(args: [_submittedName, _submittedAge])),
             const SizedBox(height: 20),
-            // language button — unchanged
-            ElevatedButton(
-              onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                if (context.locale == Locale('ar')) {
-                  context.setLocale(Locale('en'));
-                  prefs.setString('lang', 'en');
-                } else {
-                  context.setLocale(Locale('ar'));
-                  prefs.setString('lang', 'ar');
-                }
-              },
-              child: Text(context.locale == Locale('ar') ? 'English' : 'عربي'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(onPressed: sendData, child: Text("submit").tr()),
-            const SizedBox(height: 10),
-            // CHANGED: now uses widget.onThemeToggle and widget.isDarkMode
-            ElevatedButton(
-              onPressed: widget.onThemeToggle,
-              child: Text(widget.isDarkMode ? 'Light Mode' : 'Dark Mode'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // language button
+                ElevatedButton(
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    if (context.locale == Locale('ar')) {
+                      context.setLocale(Locale('en'));
+                      prefs.setString('lang', 'en');
+                    } else {
+                      context.setLocale(Locale('ar'));
+                      prefs.setString('lang', 'ar');
+                    }
+                  },
+                  child: Text(
+                    context.locale == Locale('ar') ? 'English' : 'عربي',
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ), // width not height — horizontal space
+                // dark mode button
+                ElevatedButton(
+                  onPressed: widget.onThemeToggle,
+                  child: Text(widget.isDarkMode ? 'Light Mode' : 'Dark Mode'),
+                ),
+                const SizedBox(
+                  width: 10,
+                ), // width not height — horizontal space
+                // submit button
+                ElevatedButton(onPressed: sendData, child: Text("submit").tr()),
+              ],
             ),
             ElevatedButton(
               onPressed: () async {
