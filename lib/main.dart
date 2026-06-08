@@ -17,11 +17,12 @@ void main() async {
       child: const MyApp(),
       supportedLocales: const [Locale('en'), Locale('ar')],
       path: 'assets/translations',
-      startLocale: const Locale('ar'), // app opens in Arabic
+      startLocale: const Locale('ar'),
     ),
   );
 }
 
+// CHANGED: StatelessWidget → StatefulWidget so it can hold _isDarkMode
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -30,22 +31,57 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  bool _isDarkMode = false; // MOVED here from HomePage
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTheme(); // read the notebook when app opens
+  }
+
+  Future<void> _loadTheme() async {
+    final prefs = await SharedPreferences.getInstance(); // open notebook
+    setState(() {
+      _isDarkMode = prefs.getBool('isDarkMode') ?? false; // read value
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // CHANGED: added these 3 lines back — without them app crashes
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
-      locale: context
-          .locale, // CHANGED: was Locale('ar') — now uses easy_localization to control it so the button can switch it
+      locale: context.locale,
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      theme: ThemeData.light(), // ADDED — light mode colors
+      darkTheme: ThemeData.dark(), // ADDED — dark mode colors
+      // ADDED — this is what actually switches the app theme
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: HomePage(
+        isDarkMode: _isDarkMode, // ADDED — pass value down to HomePage
+        onThemeToggle: () async {
+          // ADDED — pass toggle action down to HomePage
+          final prefs = await SharedPreferences.getInstance();
+          setState(() {
+            _isDarkMode = !_isDarkMode; // flip the value
+          });
+          await prefs.setBool('isDarkMode', _isDarkMode); // save to notebook
+        },
+      ),
     );
   }
 }
 
+// CHANGED: added isDarkMode and onThemeToggle parameters
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final bool isDarkMode;
+  final VoidCallback onThemeToggle;
+
+  const HomePage({
+    super.key,
+    required this.isDarkMode,
+    required this.onThemeToggle,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -56,6 +92,7 @@ class _HomePageState extends State<HomePage> {
   final ageController = TextEditingController();
   int _submitCount = 0;
   int _studentCount = 0;
+  // REMOVED: _isDarkMode, _loadTheme, _saveTheme — they moved to MyApp
 
   Future<void> sendData() async {
     await FirebaseFirestore.instance.collection('students').add({
@@ -74,7 +111,6 @@ class _HomePageState extends State<HomePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          // CHANGED: added format so big numbers show with commas
           "mesg".plural(_submitCount, format: NumberFormat.decimalPattern()),
         ),
       ),
@@ -99,7 +135,6 @@ class _HomePageState extends State<HomePage> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: "age".tr()),
             ),
-            // CHANGED: added format so big numbers show with commas
             Text(
               "students".plural(
                 _studentCount,
@@ -107,38 +142,31 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 20),
-            // NEW: language switcher button
+            // language button — unchanged
             ElevatedButton(
               onPressed: () async {
-                final SharedPreferences prefs =
-                    await SharedPreferences.getInstance();
-
+                final prefs = await SharedPreferences.getInstance();
                 if (context.locale == Locale('ar')) {
                   context.setLocale(Locale('en'));
-                  prefs.setString(
-                    'lang',
-                    'en',
-                  ); // save the current language to shared preferences
+                  prefs.setString('lang', 'en');
                 } else {
                   context.setLocale(Locale('ar'));
-                  prefs.setString(
-                    'lang',
-                    'ar',
-                  ); // save the current language to shared preferences
+                  prefs.setString('lang', 'ar');
                 }
               },
-              child: Text(
-                // shows 'English' when Arabic, shows 'عربي' when English
-                context.locale == Locale('ar') ? 'English' : 'عربي',
-              ),
+              child: Text(context.locale == Locale('ar') ? 'English' : 'عربي'),
             ),
             const SizedBox(height: 10),
             ElevatedButton(onPressed: sendData, child: Text("submit").tr()),
+            const SizedBox(height: 10),
+            // CHANGED: now uses widget.onThemeToggle and widget.isDarkMode
+            ElevatedButton(
+              onPressed: widget.onThemeToggle,
+              child: Text(widget.isDarkMode ? 'Light Mode' : 'Dark Mode'),
+            ),
             ElevatedButton(
               onPressed: () async {
-                // read the current language from shared preferences and show as snackbar
-                final SharedPreferences prefs =
-                    await SharedPreferences.getInstance();
+                final prefs = await SharedPreferences.getInstance();
                 final String? lang = prefs.getString('lang');
                 ScaffoldMessenger.of(
                   context,
@@ -146,6 +174,20 @@ class _HomePageState extends State<HomePage> {
               },
               child: Text("readlang").tr(),
             ),
+            Image.asset(
+              'assets/images/image1.jpg', // the path to your image
+              width: 200, // how wide
+              height: 200, // how tall
+              fit: BoxFit.cover, // fills the space without stretching
+            ),
+            const SizedBox(height: 20),
+            Image.asset(
+              'assets/images/image2.jpeg', // the path to your image
+              width: 200, // how wide
+              height: 200, // how tall
+              fit: BoxFit.cover, // fills the space without stretching
+            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
